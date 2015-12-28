@@ -70,14 +70,19 @@ Return the count of a top-level element in the MODS document:
 
 ###Matching elements and values
 
-The match() function allows you to return matching elements by attribute value, regular expression, or xpath:
+The match() function allows you to return matching elements by attribute value, regular expression, or xpath. This function is a wrapper around the etree.XPath method and returns a list of xpath results. Depending on your query, this will either be a list of text values or a list of elements. You can then convert element results to Python dictionaries using the todict() function.
 
 Given a list of attribute values of the element, returns matching instances of that element, To match by attribute, specify as attribute="attr value" in a comma-delimited list, ex. `['@authority="lcnaf"']`:
 
 ```python
->>> print record.name.match(attr=['@authority="naf"'])  
+>>> print record.name.match(attr=['@authority="naf"']) 
 
-[OrderedDict([(u'name', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'personal'), (u'@authority', u'naf'), (u'@valueURI', u''), (u'@usage', u'primary'), (u'namePart', u'Lotter, Matth\xe4us Albrecht (1741-1810 )'), (u'role', OrderedDict([(u'roleTerm', [OrderedDict([(u'@valueURI', u'http://id.loc.gov/vocabulary/relators/ctg'), (u'@authority', u'marcrelator'), (u'@type', u'code'), ('#text', u'ctg')]), OrderedDict([(u'@valueURI', u'http://id.loc.gov/vocabulary/relators/ctg'), (u'@authority', u'marcrelator'), (u'@type', u'text'), ('#text', u'Cartographer')])])]))]))]), OrderedDict([(u'name', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'personal'), (u'@authority', u'naf'), (u'@valueURI', u''), (u'namePart', u'Lotter, Tobias Conrad (1717-1777 )'), (u'role', OrderedDict([(u'roleTerm', [OrderedDict([(u'@valueURI', u'http://id.loc.gov/vocabulary/relators/pbl'), (u'@authority', u'marcrelator'), (u'@type', u'code'), ('#text', u'pbl')]), OrderedDict([(u'@valueURI', u'http://id.loc.gov/vocabulary/relators/pbl'), (u'@authority', u'marcrelator'), (u'@type', u'text'), ('#text', u'Publisher')])])]))]))])]  
+[<Element {http://www.loc.gov/mods/v3}name at 0x44c8d08>,
+ <Element {http://www.loc.gov/mods/v3}name at 0x48d25c8>]
+ 
+>>> print todict(record.name.match(attr=['@authority="naf"']))
+
+[OrderedDict([(u'name', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'personal'), (u'@usage', u'primary'), (u'@authority', u'naf'), (u'@valueURI', u'http://id.loc.gov/authorities/names/n97874402'), (u'role', OrderedDict([(u'roleTerm', [OrderedDict([(u'@authority', u'marcrelator'), (u'@type', u'code'), ('#text', u'ltg')]), OrderedDict([(u'@authority', u'marcrelator'), (u'@valueURI', u'http://id.loc.gov/vocabulary/relators/ltg'), (u'@type', u'text'), ('#text', u'Lithographer')])])])), (u'namePart', u'Delpech, Fran\xe7ois S\xe9raphin, 1778-1825')]))]), OrderedDict([(u'name', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'personal'), (u'@authority', u'naf'), (u'@valueURI', u'http://id.loc.gov/authorities/names/n97861896'), (u'role', OrderedDict([(u'roleTerm', OrderedDict([(u'@authority', u'marcrelator'), (u'@type', u'code'), ('#text', u'att')]))])), (u'namePart', u'Lecomte, Hippolyte, 1781-1857')]))])]
 ```
 
 
@@ -88,19 +93,25 @@ Use any regular expression to match text values in the top-level element or its 
 #returns all <identifier> values starting with 4 or more numbers
 >>> print record.identifier.match(regex='^[0-9]{4,}')  
 
-[OrderedDict([(u'identifier', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'local_hades'), (u'@displayLabel', u'Hades struc ID (legacy)'), ('#text', u'300826')]))]), OrderedDict([(u'identifier', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'local_other'), (u'@displayLabel', u'RLIN/OCLC'), ('#text', u'5416579')]))]), OrderedDict([(u'identifier', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'@type', u'uuid'), ('#text', u'900112c0-c52a-012f-640c-3c075448cc4b')]))])]
+[1616195, 693446, 33333159165923L]
 ```
 
 Use the `g` or `i` flags for refining regex:  
  `g` = global match - the submatches from all the matches in the string are returned. If this character is not present, then only the submatches from the first match in the string are returned.  
 `i` = case insensitive - the regular expression is treated as case insensitive. If this character is not present, then the regular expression is case sensitive.
 
-You can also use xpath to find elements or values within the Mods object or any top-level element. (Doesn't work yet for returning text results, but I'm working on it.) Xpaths should treat parent MODS as root and include the top-level element's tag. (ex. `./m:subject[*[@authority="lcsh"]]`) Prepend any element tags with namespace `m:`  
+You can also use xpath to find elements or values within the Mods object or any top-level element. Xpaths should treat parent MODS as root and include the top-level element's tag. (ex. `./m:subject[*[@authority="lcsh"]]`) Prepend any element tags with namespace `m:`  
 
 ```python
->>> print record.location.match(xpath='./m:location[m:physicalLocation[@type="division"]]')  
+>>> divisions = record.location.match(xpath='./m:location[m:physicalLocation[@type="division"]]')
+print divisions
 
-[OrderedDict([(u'location', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'physicalLocation', [OrderedDict([(u'@type', u'division'), ('#text', u'Lionel Pincus and Princess Firyal Map Division')]), OrderedDict([(u'@type', u'division_short_name'), ('#text', u'Map Division')]), OrderedDict([(u'@type', u'code'), ('#text', u'MAP')])]), (u'shelfLocator', u'Map Div. 01-5200')]))])]
+[<Element {http://www.loc.gov/mods/v3}location at 0x44c8b08>,
+ <Element {http://www.loc.gov/mods/v3}location at 0x47a5b88>]
+ 
+>>> todict(divisions)
+
+[OrderedDict([(u'location', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'physicalLocation', [OrderedDict([(u'@authority', u'marcorg'), (u'@type', u'repository'), ('#text', u'nn')]), OrderedDict([(u'@type', u'division'), ('#text', u'Jerome Robbins Dance Division')]), OrderedDict([(u'@type', u'division_short_name'), ('#text', u'Jerome Robbins Dance Division')]), OrderedDict([(u'@type', u'code'), ('#text', u'DAN')])])]))]), OrderedDict([(u'location', OrderedDict([(u'@xmlns', u'http://www.loc.gov/mods/v3'), (u'@xmlns:xsi', u'http://www.w3.org/2001/XMLSchema-instance'), (u'shelfLocator', u'*MGZFD Del F Bal 1'), (u'physicalLocation', [OrderedDict([(u'@type', u'division'), ('#text', u'Jerome Robbins Dance Division')]), OrderedDict([(u'@type', u'division_short_name'), ('#text', u'Jerome Robbins Dance Division')]), OrderedDict([(u'@type', u'code'), ('#text', u'DAN')])])]))])]
 ```
 
 ###Data structures
