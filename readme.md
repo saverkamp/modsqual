@@ -6,6 +6,13 @@ modsqual is a Python library to help you evaluate the quality of your MODS metad
 
 modsqual also provides multiple representations of MODS elements to best suit the tools and skills you have at hand. modsqual can return elements in XML, Python ordered dictionaries, or just the text values of an top-level element.   
 
+##Installation
+
+Install via pip on the command line:
+```
+pip install modsqual
+```
+
 ##Usage
 
 (requires [lxml](http://lxml.de/) and [xmltodict](https://github.com/martinblech/xmltodict))  
