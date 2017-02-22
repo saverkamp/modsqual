@@ -90,7 +90,7 @@ class Element(object):
         texts = text(self)
         return texts
     
-    def match(self, attr=[], regex='', xpath='', flag=''):
+    def match(self, attr=[], regex='', xpath='', flag='', ns=modsns):
         """
         Wrapper around lxml etree.XPath to match element values through regex, attribute value, or xpath.     
         Returns a list of xpath results.
@@ -120,7 +120,7 @@ class Element(object):
                 path = './{0}{1}'.format(selftag,attrs)
             elif xpath != '':
                 path = xpath
-            find = etree.XPath(path, namespaces={'re':regexpNS, 'm':modsns})
+            find = etree.XPath(path, namespaces={'re':regexpNS, 'm':ns})
             xxpath = find(self.mods.getparent())
             thematch = xxpath
             return thematch
@@ -355,7 +355,7 @@ class Mods(object):
     def getTypeOfResource(self):
         self.typeOfResource = TypeOfResource(self.mods)
 
-    def match(self, attr=[], regex='', xpath='', flag=''):
+    def match(self, attr=[], regex='', xpath='', flag='', ns=modsns):
         """
         Wrapper around etree.XPath to match element values through regex, attribute value, or xpath.     
         Returns a list of xpath results.
@@ -383,7 +383,7 @@ class Mods(object):
             path = './*{0}'.format(attrs)
         elif regex != '':
             path = regex
-        find = etree.XPath(path, namespaces={'re':regexpNS, 'm':modsns})
+        find = etree.XPath(path, namespaces={'re':regexpNS, 'm':ns})
         xpath = find(self.mods)
         return xpath
     
