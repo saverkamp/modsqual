@@ -370,6 +370,7 @@ class Mods(object):
                  If this character is not present, then only the submatches from the first match in the string are returned.
               i: case insensitive - the regular expression is treated as case insensitive. If this character is not present,
                  then the regular expression is case sensitive.
+        ns: specify a namespace if not using 'http://www.loc.gov/mods/v3'
         """
         selftag = 'm:' + ln(self.mods.tag)
         regexpNS = "http://exslt.org/regular-expressions"
